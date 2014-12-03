@@ -1,0 +1,20 @@
+{
+  "name": "bot-test",
+  "version": "0.0.1",
+  "description": "irc bot testing framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Sunny <indiasuny000@gmail.com> (darkowlzz)",
+  "license": "MIT",
+  "dependencies": {
+    "mybot": "git://github.com/darkowlzz/mybot",
+    "q": "^1.1.2",
+    "should": "^4.3.0",
+    "underscore": "^1.7.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.0.1"
+  }
+}

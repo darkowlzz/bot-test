@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "0.10.30"
+before_install:
+  - sudo apt-get update
+  - sudo apt-get ngircd
+install:
+  - npm install
+script:
+  - mocha
+notifications:
+  irc: "irc.freenode.net##til"
