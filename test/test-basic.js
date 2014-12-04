@@ -46,6 +46,26 @@ describe('test bot', function() {
     });
   });
 
+  describe('test join listening', function () {
+    it('should listen to join event', function (done) {
+      this.timeout(15000);
+      realbot.part('#test', 'gtg');
+      realbot.join('#test');
+      testbot.bot.testJoin({channel: '#test', nick: realbot.nick,
+                            callback: function () { done(); }});
+    });
+  });
+
+  describe('test part listening', function () {
+    it('should listen to part event', function (done) {
+      this.timeout(15000);
+      realbot.part('#test', 'timeout');
+      testbot.bot.testPart({channel: '#test', nick: realbot.nick,
+                            reason: 'timeout',
+                            callback: function () { done(); }});
+    });
+  });
+
   after(function () {
     realbot.kill();
     testbot.bot.kill();

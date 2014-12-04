@@ -18,6 +18,7 @@ function BotTest(options) {
     nick: 'testbot',
     server: '127.0.0.1',
     channels: ['#test'],
+    plugins: ['plugins/irctest-join.js', 'plugins/irctest-part.js']
   }, options);
  
   this.bot = new Bot(this.config);
@@ -51,7 +52,7 @@ BotTest.prototype.init = function (botConnect, promise) {
     })
     .catch(function(e) {
       reject('failed to init');
-    })
+    });
   });
 };
 
@@ -83,14 +84,6 @@ BotTest.prototype.startServer = function () {
 
 BotTest.prototype.buffer = function (channel) {
   return this.bot.buffer[channel];
-};
-
-BotTest.prototype.waitAlittle = function () {
-  return Q.Promise(function (resolve, reject) {
-    Q.delay(3000).then(function () {
-      resolve(true);
-    });
-  });
 };
 
 BotTest.prototype.targetNick = function (nick) {
@@ -149,7 +142,7 @@ BotTest.prototype.message = function (channel, msg, callback) {
     msg = channel;
     channel = null;
   }
-  that.waitAlittle()
+  that.bot.waitAlittle()
   .then(function () {
     if (!! channel) {
       buffer = that.bot.buffer[channel];
