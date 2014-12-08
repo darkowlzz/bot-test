@@ -13,22 +13,24 @@ exports.join = function (channel, nick) {
   self.irctestJoin[channel] = nick;
 
   self.log(exports.name, [channel, nick]);
+};
 
-  self.testJoin = function (options) {
+exports.main = function (bot) {
+  bot.testJoin = function (options) {
     var expect = _.extend({
       channel: null,
          nick: null,
      callback: null
     }, options);
 
-    self.waitAlittle()
+    bot.waitAlittle()
     .then(function () {
-      self.irctestJoin[expect.channel].should.equal(expect.nick);
+      bot.irctestJoin[expect.channel].should.equal(expect.nick);
     })
     .then(function () {
       if (!! expect.callback) {
         expect.callback();
       }
     });
-  }
+  };
 };
