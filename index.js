@@ -18,7 +18,8 @@ function BotTest(options) {
     nick: 'testbot',
     server: '127.0.0.1',
     channels: ['#test'],
-    plugins: ['plugins/irctest-join.js', 'plugins/irctest-part.js']
+    plugins: ['plugins/irctest-join.js', 'plugins/irctest-part.js',
+              'plugins/irctest-message.js']
   }, options);
  
   this.bot = new Bot(this.config);
@@ -123,38 +124,6 @@ BotTest.prototype.setupTarget = function (botConnect) {
     }
     catch (e) {
       reject(e);
-    }
-  });
-};
-
-/**
- * Assert message to channel.
- *
- * @param {String}[optional] channel - channel name
- * @param {String} msg - expected message
- * @param {function} callback - callback function
- */
-BotTest.prototype.message = function (channel, msg, callback) {
-  var that = this,
-      buffer;
-  if (typeof(msg) !== 'string') {
-    callback = msg;
-    msg = channel;
-    channel = null;
-  }
-  that.bot.waitAlittle()
-  .then(function () {
-    if (!! channel) {
-      buffer = that.bot.buffer[channel];
-    }
-    else {
-      buffer = _.values(that.bot.buffer);
-    }
-    return buffer.should.containEql(msg);
-  })
-  .then(function () {
-    if (!! callback) {
-      callback();
     }
   });
 };

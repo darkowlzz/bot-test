@@ -34,15 +34,17 @@ describe('test bot', function() {
 
   describe('test message listening', function () {
     it('should work without channel name', function (done) {
-      this.timeout(15000);
+      this.timeout(25000);
       realbot.say(realbot.channels[0], 'hello world');
-      testbot.message('hello world', function () { done(); });
+      testbot.bot.testMessage({msg: 'hello world',
+                               callback: function () { done(); }});
     });
 
     it('should work with channel name', function (done) {
       this.timeout(15000);
       realbot.say(realbot.channels[0], 'foo bar');
-      testbot.message('#test', 'foo bar', function () { done(); });
+      testbot.bot.testMessage({channel: '#test', msg: 'foo bar',
+                               callback: function () { done(); }});
     });
   });
 
