@@ -25,105 +25,121 @@ function BotTest(options) {
   this.bot = new Bot(this.config);
 }
 
-/**
- * Initialize test bot and target bot.
- *
- * @param {function} botConnect
- *    setup function of the target bot. This should be able to allccept
- *    a callback or return a promise.
- * @param {boolean}[optional] promise
- *    bool indicating if the setup function is promised based
- */
-BotTest.prototype.init = function (botConnect, promise) {
-  var that = this;
-  return Q.Promise(function (resolve, reject) {
-    that.startServer()
-    .then(function() {
-      return that.bot.connectAll();
-    })
-    .then(function() {
-      if (!! promise) {
-        return that.setupTargetPromise(botConnect);
-      } else {
-        return that.setupTarget(botConnect);
-      }
-    })
-    .then(function() {
-      resolve(true);
-    })
-    .catch(function(e) {
-      reject('failed to init');
+BotTest.prototype = {
+
+  /**
+   * Initialize test bot and target bot.
+   *
+   * @param {function} botConnect
+   *    setup function of the target bot. This should be able to allccept
+   *    a callback or return a promise.
+   * @param {boolean}[optional] promise
+   *    bool indicating if the setup function is promised based
+   */
+  init: function (botConnect, promise) {
+    var that = this;
+    return Q.Promise(function (resolve, reject) {
+      that.startServer()
+      .then(function() {
+        return that.bot.connectAll();
+      })
+      .then(function() {
+        if (!! promise) {
+          return that.setupTargetPromise(botConnect);
+        } else {
+          return that.setupTarget(botConnect);
+        }
+      })
+      .then(function() {
+        resolve(true);
+      })
+      .catch(function(e) {
+        reject('failed to init');
+      });
     });
-  });
-};
+  },
 
-/**
- * Start the irc server.
- *
- * @return {Promise}
- */
-BotTest.prototype.startServer = function () {
-  console.log('starting server');
-  return Q.Promise(function (resolve, reject) {
-    var which = spawn('which', ['ngircd']);
-    which.stdout.on('data', function (data) {
-      var s = String(data);
-      console.log('result: ' + s);
+  /**
+   * Start the irc server.
+   *
+   * @return {Promise}
+   */
+  startServer: function () {
+    var that = this;
+    that.log('starting server');
+    return Q.Promise(function (resolve, reject) {
+      var which = spawn('which', ['ngircd']);
+      which.stdout.on('data', function (data) {
+        var s = String(data);
+        that.log('result: ' + s);
 
-      if (s.indexOf('ngircd') > -1) {
-        console.log('found ngircd');
-        exec(s, function () {
-          console.log('ngircd started');
+        if (s.indexOf('ngircd') > -1) {
+          that.log('found ngircd');
+          exec(s, function () {
+            that.log('ngircd started');
+            resolve(true);
+          });
+        } else {
+          reject('install ngircd and then proceed');
+        }
+      });
+    });
+  },
+
+  buffer: function (channel) {
+    return this.bot.buffer[channel];
+  },
+
+  targetNick: function (nick) {
+    this.bot.targetNick = nick;
+  },
+
+  /**
+   * Setup target.
+   * @param {function} botConnect
+   *    This function executes target setup method and it should return
+   *    a promise.
+   */
+  setupTargetPromise: function (botConnect) {
+    return Q.Promise(function (resolve, reject) {
+      botConnect()
+      .then(function () {
+        resolve(true);
+      })
+      .catch(function () {
+        reject('failed to connect');
+      });
+    });
+  },
+
+  /**
+   * Setup target.
+   * @param {function} botConnect
+   *    This function executes target setup method and it should be able
+   *    to accept a callback function.
+   */
+  setupTarget: function (botConnect) {
+    return Q.Promise(function (resolve, reject) {
+      try {
+        botConnect(function () {
           resolve(true);
         });
-      } else {
-        reject('install ngircd and then proceed');
+      }
+      catch (e) {
+        reject(e);
       }
     });
-  });
-};
+  },
 
-BotTest.prototype.buffer = function (channel) {
-  return this.bot.buffer[channel];
-};
-
-BotTest.prototype.targetNick = function (nick) {
-  this.bot.targetNick = nick;
-};
-
-/**
- * Setup target.
- * @param {function} botConnect
- *    This function executes target setup method and it should return
- *    a promise.
- */
-BotTest.prototype.setupTargetPromise = function (botConnect) {
-  return Q.Promise(function (resolve, reject) {
-    botConnect()
-    .then(function () {
-      resolve(true);
-    })
-    .catch(function () {
-      reject('failed to connect');
-    });
-  });
-};
-
-/**
- * Setup target.
- * @param {function} botConnect
- *    This function executes target setup method and it should be able
- *    to accept a callback function.
- */
-BotTest.prototype.setupTarget = function (botConnect) {
-  return Q.Promise(function (resolve, reject) {
-    try {
-      botConnect(function () {
-        resolve(true);
-      });
+  /**
+   * Logging method.
+   *
+   * @param {string} message - A string identifier
+   * @param {array|string} args - An array of data to be printed
+   */
+  log: function (message, args) {
+    if (this.debug) {
+      console.log(message, args);
     }
-    catch (e) {
-      reject(e);
-    }
-  });
-};
+  }
+}
