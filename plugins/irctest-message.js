@@ -18,9 +18,9 @@ exports.message = function (nick, channel, msg) {
 exports.main = function (bot) {
   bot.testMessage = function (options) {
     var expect = _.extend({
-      channel: null,
-          msg: null,
-     callback: null
+       channel: null,
+           msg: null,
+      callback: null
     }, options);
     var buffer;
 
@@ -39,5 +39,27 @@ exports.main = function (bot) {
       }
     });
   };
-};
 
+  bot.testMessageExists = function (options) {
+    var expect = _.extend({
+       channel: null,
+      callback: null
+    }, options);
+    var buffer;
+
+    bot.waitAlittle()
+    .then(function () {
+      if (!! expect.channel) {
+        buffer = bot.irctestMessage[expect.channel];
+      } else {
+        buffer = _.values(bot.irctestMessage);
+      }
+      buffer.should.match(/[^\s]+/);
+    })
+    .then(function () {
+      if (!! expect.callback) {
+        expect.callback();
+      }
+    });
+  };
+};

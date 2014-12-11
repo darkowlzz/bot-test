@@ -9,6 +9,8 @@ var config1 = {
   channels: ['#test']
 };
 
+var DEBUG = false;
+
 
 describe('test bot', function() {
   var realbot, testbot;
@@ -17,7 +19,7 @@ describe('test bot', function() {
     this.timeout(55000);
 
     console.log('creating bots');
-    testbot = new BotTest();
+    testbot = new BotTest({debug: DEBUG});
     realbot = new Bot(config1);
 
     return Q.try(function () {
@@ -45,6 +47,13 @@ describe('test bot', function() {
       realbot.say(realbot.channels[0], 'foo bar');
       testbot.bot.testMessage({channel: '#test', msg: 'foo bar',
                                callback: function () { done(); }});
+    });
+
+    it('message should not be empty', function (done) {
+      this.timeout(15000);
+      testbot.bot.say(realbot.channels[0], realbot.nick + ': hi');
+      testbot.bot.testMessageExists({channel: '#test',
+                                     callback: function () { done(); }});
     });
   });
 
